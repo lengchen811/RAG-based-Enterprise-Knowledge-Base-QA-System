@@ -1,0 +1,27 @@
+# 项目级忽略
+.env
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+# 虚拟环境（覆盖常见命名，如 .venv / .venv.venv / venv）
+.venv/
+.venv*/
+venv/
+venv*/
+*/.venv/
+*/.venv*/
+
+# 运行数据（FAISS 索引、上传文件）—— 不提交
+data/uploads/
+data/vectorstore/
+data/*.db
+data/*.sqlite*
+
+# 保留 data/seeds/ 下的示例/演示文档（其余 data 运行数据忽略）
+!data/seeds/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store

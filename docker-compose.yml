@@ -1,0 +1,90 @@
+name: enterprise-rag
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rag-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: ragdb
+      MYSQL_USER: rag
+      MYSQL_PASSWORD: rag2024
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-urag", "-prag2024"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    container_name: rag-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+asyncmy://rag:rag2024@mysql:3306/ragdb
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - rag_data:/app/data
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build: ./backend
+    container_name: rag-worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+asyncmy://rag:rag2024@mysql:3306/ragdb
+      REDIS_URL: redis://redis:6379/0
+    command: celery -A app.tasks.celery_app:celery_app worker --loglevel=info --concurrency=1 -n rag-worker@%h
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - rag_data:/app/data
+
+  web:
+    build: ./frontend
+    container_name: rag-web
+    restart: unless-stopped
+    environment:
+      API_BASE: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+
+volumes:
+  mysql_data:
+  redis_data:
+  rag_data:

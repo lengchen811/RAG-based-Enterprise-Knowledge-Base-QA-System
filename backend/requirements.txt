@@ -1,0 +1,47 @@
+# ===== 后端依赖 =====
+# 框架
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# 配置与数据校验
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# 数据库（异步）
+sqlalchemy[asyncio]==2.0.36
+asyncmy==0.2.10
+aiomysql==0.2.0
+cryptography==44.0.0
+
+# 认证
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# 异步任务
+celery==5.4.0
+redis==5.2.1
+
+# AI 编排
+langchain==0.3.13
+langchain-community==0.3.13
+langchain-openai==0.2.14
+langchain-core==0.3.28
+langchain-text-splitters==0.3.4
+dashscope==1.20.12
+
+# 文档解析
+PyMuPDF==1.25.1
+pymupdf4llm==0.0.17
+
+# 向量检索
+faiss-cpu==1.9.0.post1
+rank-bm25==0.2.2
+numpy==1.26.4
+
+# 可观测性（可选）
+langsmith==0.2.11
+
+# 工具
+python-dotenv==1.0.1
